@@ -2,16 +2,18 @@
 name = "railyard"
 version = "0.1.0"
 edition = "2021"
-build = "build.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[build-dependencies]
-tonic-build = "0.9.2"
-
-
+[[bin]]
+name = "node"
+path = "src/node/bin/main.rs"
 
 [dependencies]
-prost = "0.11.9"
-tokio = { version = "1.28.2", features = ["full"]  }
-tonic = "0.9.2"
+k8s-openapi = { version = "0.18.0", features = ["v1_25"] }
+kube = { version = "0.83.0", features = ["derive"] }
+openssl = "0.10.54"
+quinn = "0.10.1"
+rcgen = "0.11.1"
+rustls = { version = "0.21.2", features = ["quic"] }
+tokio = { version = "1.28.2", features = ["full"] }
