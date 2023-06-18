@@ -25,8 +25,8 @@ kubectl create secret generic ca-secret --from-file=ca.crt --from-file=ca.key
 
 Run a single docker container
 ```
-docker build -t your-image-name .
-docker run -p 5000:5000 your-image-name
+docker build -t railyard .
+docker run -p 8000:8000 railyard
 ```
 
 Running the cluster

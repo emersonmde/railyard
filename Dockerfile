@@ -1,5 +1,6 @@
+
 # Use an official Rust runtime as a parent image
-FROM rust:1.57
+FROM rust:1.65
 
 # Set the working directory in the container to /app
 WORKDIR /usr/src/railyard
@@ -20,8 +21,8 @@ COPY . .
 
 RUN cargo install --path .
 
-# Make port 8080 available to the world outside this container
-EXPOSE 5000
+# Make port 8000 available to the world outside this container
+EXPOSE 8000
 
 # Run the app when the container launches
 # CMD ["cargo", "run", "--release"]

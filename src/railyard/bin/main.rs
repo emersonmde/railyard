@@ -13,22 +13,18 @@ use openssl::{
 use quinn::{ClientConfig, Endpoint, ServerConfig};
 use std::{error::Error, net::SocketAddr, sync::Arc};
 
-// #[allow(unused)]
-// pub const ALPN_QUIC_HTTP: &[&[u8]] = &[b"hq-29"];
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let addr1 = "127.0.0.1:5000".parse().unwrap();
+    let addr1 = "127.0.0.1:8000".parse().unwrap();
     // let addr2 = "127.0.0.1:5001".parse().unwrap();
     // let addr3 = "127.0.0.1:5002".parse().unwrap();
-    let server1_cert = run_server(addr1).await?;
+    run_server(addr1).await?;
     // let server2_cert = run_server(addr2)?;
     // let server3_cert = run_server(addr3)?;
 
     let client = make_client_endpoint(
         "127.0.0.1:0".parse().unwrap(),
         // &[&server1_cert, &server2_cert, &server3_cert],
-        &[&server1_cert],
     )
     .await?;
 
@@ -46,8 +42,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
 }
 
 /// Runs a QUIC server bound to given address and returns server certificate.
-async fn run_server(addr: SocketAddr) -> Result<Vec<u8>, Box<dyn Error>> {
-    let (endpoint, server_cert) = make_server_endpoint(addr).await?;
+async fn run_server(addr: SocketAddr) -> Result<(), Box<dyn Error>> {
+    let endpoint = make_server_endpoint(addr).await?;
     // accept a single connection
     tokio::spawn(async move {
         let connection = endpoint.accept().await.unwrap().await.unwrap();
@@ -57,7 +53,7 @@ async fn run_server(addr: SocketAddr) -> Result<Vec<u8>, Box<dyn Error>> {
         );
     });
 
-    Ok(server_cert)
+    Ok(())
 }
 
 /// Attempt QUIC connection with the given server address.
@@ -82,9 +78,8 @@ async fn run_client(endpoint: &Endpoint, server_addr: SocketAddr) {
 #[allow(unused)]
 pub async fn make_client_endpoint(
     bind_addr: SocketAddr,
-    server_certs: &[&[u8]],
 ) -> Result<Endpoint, Box<dyn Error>> {
-    let client_cfg = configure_client(server_certs).await?;
+    let client_cfg = configure_client().await?;
     let mut endpoint = Endpoint::client(bind_addr)?;
     endpoint.set_default_client_config(client_cfg);
     Ok(endpoint)
@@ -100,10 +95,10 @@ pub async fn make_client_endpoint(
 #[allow(unused)]
 pub async fn make_server_endpoint(
     bind_addr: SocketAddr,
-) -> Result<(Endpoint, Vec<u8>), Box<dyn Error>> {
-    let (server_config, server_cert) = configure_server().await?;
+) -> Result<(Endpoint), Box<dyn Error>> {
+    let server_config = configure_server().await?;
     let endpoint = Endpoint::server(server_config, bind_addr)?;
-    Ok((endpoint, server_cert))
+    Ok(endpoint)
 }
 
 /// Builds default quinn client config and trusts given certificates.
@@ -111,16 +106,12 @@ pub async fn make_server_endpoint(
 /// ## Args
 ///
 /// - server_certs: a list of trusted certificates in DER format.
-async fn configure_client(server_certs: &[&[u8]]) -> Result<ClientConfig, Box<dyn Error>> {
+async fn configure_client() -> Result<ClientConfig, Box<dyn Error>> {
     let mut certs = rustls::RootCertStore::empty();
 
     let (ca_cert, _) = get_ca_cert_key().await?;
     let ca_cert = rustls::Certificate(ca_cert.to_der()?);
     certs.add(&ca_cert)?;
-
-    // for cert in server_certs {
-    //     certs.add(&rustls::Certificate(cert.to_vec()))?;
-    // }
 
     let client_config = ClientConfig::with_root_certificates(certs);
     Ok(client_config)
@@ -184,7 +175,7 @@ async fn get_ca_cert_key() -> Result<(X509, PKey<Private>), Box<dyn std::error::
 }
 
 /// Returns default server configuration along with its certificate.
-async fn configure_server() -> Result<(ServerConfig, Vec<u8>), Box<dyn Error>> {
+async fn configure_server() -> Result<ServerConfig, Box<dyn Error>> {
     let (ca_cert, ca_key) = get_ca_cert_key().await?;
     println!("Imported CA Cert and Key");
 
@@ -238,5 +229,5 @@ async fn configure_server() -> Result<(ServerConfig, Vec<u8>), Box<dyn Error>> {
     let transport_config = Arc::get_mut(&mut server_config.transport).unwrap();
     transport_config.max_concurrent_uni_streams(0_u8.into());
 
-    Ok((server_config, server_cert))
+    Ok(server_config)
 }

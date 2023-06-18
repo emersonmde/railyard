@@ -16,4 +16,4 @@ spec:
       - name: railyard
         image: railyard:latest
         ports:
-        - containerPort: 5000
+        - containerPort: 8000
