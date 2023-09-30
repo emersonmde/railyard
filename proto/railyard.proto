@@ -1,0 +1,19 @@
+
+syntax = "proto3";
+package railyard;
+
+
+service Railyard {
+  // Our SayHello rpc accepts HelloRequests and returns HelloReplies
+  rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+message HealthCheckRequest {
+  string nonce = 1;
+}
+
+message HealthCheckResponse {
+  bool status = 1;
+  string nonce = 2;
+}
+

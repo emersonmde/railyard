@@ -16,8 +16,9 @@ path = "src/client.rs"
 
 [dependencies]
 prost = "0.12.1"
+rustls = "0.21.7"
 tokio = { version = "1.32.0", features = ["macros", "rt-multi-thread"] }
-tonic = "0.10.2"
+tonic = { version = "0.10.2", features = ["tls"] }
 
 [build-dependencies]
 tonic-build = "0.10.2"
