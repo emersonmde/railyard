@@ -1,20 +1,17 @@
 [package]
 name = "railyard"
 version = "0.1.0"
-edition = "2021"
+edition = "2022"
+default-run = "railyard"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [[bin]]
 name = "railyard"
-path = "src/railyard/bin/main.rs"
+path = "src/main.rs"
+
+[[bin]]
+name = "client"
+path = "src/bin/client.rs"
 
 [dependencies]
-k8s-openapi = { version = "0.18.0", features = ["v1_25"] }
-kube = { version = "0.83.0", features = ["derive"] }
-openssl = "0.10.54"
-quinn = "0.10.1"
-rcgen = "0.10.0"
-rustls = { version = "0.21.2", features = ["quic"] }
-tokio = { version = "1.28.2", features = ["full"] }
-# pem = "2.0.1"
