@@ -2,8 +2,8 @@
 
 A soon to be event streaming platform
 
-[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Rust](https://github.com/emersonmde/railyard/actions/workflows/rust.yml/badge.svg)](https://github.com/emersonmde/railyard/actions/workflows/rust.yml)
+[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 # Running
 
