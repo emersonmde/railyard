@@ -13,6 +13,10 @@ docker build -t railyard .
 docker run -p 8000:8000 railyard
 ```
 
+# Resources
+- https://raft.github.io/raft.pdf
+- [Tonic](https://github.com/hyperium/tonic)
+
 ## License
 
 This project is licensed under the [MIT license](LICENSE).

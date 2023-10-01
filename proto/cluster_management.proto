@@ -1,0 +1,26 @@
+syntax = "proto3";
+package railyard;
+
+service ClusterManagement {
+  rpc AppendEntries(AppendEntriesRequest) returns (AppendEntriesResponse);
+  rpc RequestVote(RequestVoteRequest) returns (RequestVoteResponse);
+  rpc InstallSnapshot(InstallSnapshotRequest) returns (InstallSnapshotResponse);
+}
+
+message AppendEntriesRequest {
+}
+
+message AppendEntriesResponse {
+}
+
+message RequestVoteRequest {
+}
+
+message RequestVoteResponse {
+}
+
+message InstallSnapshotRequest {
+}
+
+message InstallSnapshotResponse {
+}

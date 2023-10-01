@@ -7,10 +7,10 @@ use crate::railyard::{
 };
 
 #[derive(Debug, Default)]
-pub struct Node {}
+pub struct RailyardService {}
 
 #[tonic::async_trait]
-impl Railyard for Node {
+impl Railyard for RailyardService {
     async fn create_stream(
         &self,
         _request: Request<CreateStreamRequest>,
