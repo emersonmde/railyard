@@ -5,8 +5,8 @@ use railyard::cluster_management_server::ClusterManagementServer;
 use railyard::railyard_server::RailyardServer;
 use railyard_service::RailyardService;
 
-mod railyard_service;
 mod cluster_management_service;
+mod railyard_service;
 
 pub mod railyard {
     tonic::include_proto!("railyard");
