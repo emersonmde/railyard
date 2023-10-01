@@ -4,16 +4,39 @@ package railyard;
 
 
 service Railyard {
-  // Our SayHello rpc accepts HelloRequests and returns HelloReplies
-  rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse);
+  rpc CreateStream (CreateStreamRequest) returns (CreateStreamResponse);
+  rpc GetRecords (GetRecordsRequest) returns (GetRecordsResponse);
+  rpc PutRecord (PutRecordRequest) returns (PutRecordResponse);
+  rpc GetShardIterator (GetShardIndexRequest) returns (GetShardIndexResponse);
 }
 
-message HealthCheckRequest {
-  string nonce = 1;
+message CreateStreamRequest {
+  string streamName = 1;
+  int32 shardCount = 2;
 }
 
-message HealthCheckResponse {
+message CreateStreamResponse {
+}
+
+message GetRecordsRequest {
+  string streamName = 1;
+  int64 count = 2;
+  int64 sequenceNumber = 3;
+}
+
+message GetRecordsResponse {
   bool status = 1;
-  string nonce = 2;
+}
+
+message PutRecordRequest {
+}
+
+message PutRecordResponse {
+}
+
+message GetShardIndexRequest {
+}
+
+message GetShardIndexResponse {
 }
 
