@@ -15,6 +15,7 @@ name = "client"
 path = "src/client.rs"
 
 [dependencies]
+clap = { version = "4.4.6", features = ["cargo"] }
 prost = "0.12.1"
 rustls = "0.21.7"
 tokio = { version = "1.32.0", features = ["macros", "rt-multi-thread"] }

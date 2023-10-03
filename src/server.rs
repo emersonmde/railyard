@@ -1,3 +1,7 @@
+use clap::{arg, command};
+use std::net::SocketAddr;
+use std::process::exit;
+use std::str::FromStr;
 use tonic::transport::Server;
 
 use cluster_management_service::ClusterManagementService;
@@ -14,15 +18,21 @@ pub mod railyard {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let addr = "[::1]:8000".parse()?;
-    let management_addr = "[::1]:8001".parse()?;
-    let railyard_service = RailyardService::default();
-    let management_service = ClusterManagementService::default();
+    let matches = command!()
+        .arg(arg!(-p --port <PORT> "Port used for management API").required(true))
+        .get_matches();
 
-    Server::builder()
-        .add_service(RailyardServer::new(railyard_service))
-        .serve(addr)
-        .await?;
+    // let addr = "[::1]:8000".parse()?;
+    // let railyard_service = RailyardService::default();
+    // Server::builder()
+    //     .add_service(RailyardServer::new(railyard_service))
+    //     .serve(addr)
+    //     .await?;
+
+    let port = matches.get_one::<String>("port").unwrap();
+    let management_addr = SocketAddr::from_str(&format!("[::1]:{}", port))
+        .expect("Failed to construct management SocketAddr");
+    let management_service = ClusterManagementService::default();
 
     Server::builder()
         .add_service(ClusterManagementServer::new(management_service))
