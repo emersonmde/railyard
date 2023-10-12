@@ -1,16 +1,73 @@
+use std::sync::Arc;
+use std::time::Duration;
+
+use tokio::sync::Mutex;
+use tokio::time::sleep;
+use tonic::{Request, Response, Status};
+
 use crate::railyard::cluster_management_server::ClusterManagement;
 use crate::railyard::{
     AppendEntriesRequest, AppendEntriesResponse, InstallSnapshotRequest, InstallSnapshotResponse,
     RequestVoteRequest, RequestVoteResponse,
 };
-use tonic::{Request, Response, Status};
 
-#[derive(Debug, Default)]
+#[derive(Debug, PartialEq)]
+enum NodeState {
+    Follower,
+    Candidate,
+    Leader,
+}
 
-pub struct ClusterManagementService {}
+#[derive(Debug)]
+struct ClusterState {
+    current_term: i32,
+    voted_for: Option<String>,
+    state: NodeState,
+}
+
+#[derive(Debug)]
+pub struct ClusterManagementService {
+    cluster_state: Arc<Mutex<ClusterState>>,
+}
+
+impl ClusterManagementService {
+    pub async fn new() -> Self {
+        let service = Self {
+            cluster_state: Arc::new(Mutex::new(ClusterState {
+                current_term: 0,
+                voted_for: Option::None,
+                state: NodeState::Follower,
+            })),
+        };
+
+        let service_clone = service.cluster_state.clone();
+        tokio::spawn(async move {
+            Self::election_timeout(service_clone).await;
+        });
+
+        service
+    }
+
+    async fn election_timeout(service: Arc<Mutex<ClusterState>>) {
+        loop {
+            let timeout = Duration::from_millis(rand::random::<u64>() % 150 + 150);
+            println!("Starting election timeout {:?}", timeout);
+            sleep(timeout).await;
+
+            let mut guard = service.lock().await;
+            if guard.state != NodeState::Candidate {
+                println!(
+                    "Election timeout triggered. Current term: {}",
+                    guard.current_term
+                );
+                guard.state = NodeState::Candidate;
+                guard.current_term += 1;
+            }
+        }
+    }
+}
 
 #[tonic::async_trait]
-
 impl ClusterManagement for ClusterManagementService {
     async fn append_entries(
         &self,
