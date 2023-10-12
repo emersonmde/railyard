@@ -15,13 +15,13 @@ use crate::railyard::{
 enum NodeState {
     Follower,
     Candidate,
-    Leader,
+    _Leader,
 }
 
 #[derive(Debug)]
 struct ClusterState {
     current_term: i32,
-    voted_for: Option<String>,
+    _voted_for: Option<String>,
     state: NodeState,
 }
 
@@ -35,7 +35,7 @@ impl ClusterManagementService {
         let service = Self {
             cluster_state: Arc::new(Mutex::new(ClusterState {
                 current_term: 0,
-                voted_for: Option::None,
+                _voted_for: Option::None,
                 state: NodeState::Follower,
             })),
         };
