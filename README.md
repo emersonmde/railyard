@@ -13,6 +13,11 @@ To run the server locally, set the port and at least 2 other peers:
 cargo run -- -p 8001 --peer 127.0.0.1:8002 --peer 127.0.0.1:8003
 ```
 
+Calling the API for testing can be done using `grpcurl`:
+```bash
+grpcurl -plaintext -import-path ./proto -proto cluster_management.proto -d '{"entries": ["test"]}' '[::1]:8001' railyard.ClusterManagement/AppendEntries
+```
+
 ```text
 Usage: railyard --port <PORT> --peer <PEER_ADDRESS>
 

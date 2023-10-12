@@ -8,6 +8,7 @@ service ClusterManagement {
 }
 
 message AppendEntriesRequest {
+  repeated string entries = 1;
 }
 
 message AppendEntriesResponse {
