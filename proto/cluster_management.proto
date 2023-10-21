@@ -7,17 +7,36 @@ service ClusterManagement {
   rpc InstallSnapshot(InstallSnapshotRequest) returns (InstallSnapshotResponse);
 }
 
+message Entry {
+  uint32 term = 1;
+  uint32 index = 2;
+  bytes command = 3;
+}
+
 message AppendEntriesRequest {
-  repeated string entries = 1;
+  uint32 term = 1;
+  string leaderId = 2;
+  uint32 prevLogIndex = 3;
+  uint32 prevLogTerm = 4;
+  repeated Entry entries = 5;
+  uint32 leaderCommit = 6;
 }
 
 message AppendEntriesResponse {
+  uint32 term = 1;
+  bool success = 2;
 }
 
 message RequestVoteRequest {
+  uint32 term = 1;
+  string candidateId = 2;
+  uint32 lastLogIndex = 3;
+  uint32 lastLogTerm = 4;
 }
 
 message RequestVoteResponse {
+  uint32 term = 1;
+  bool voteGranted = 2;
 }
 
 message InstallSnapshotRequest {

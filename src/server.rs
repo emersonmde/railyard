@@ -16,6 +16,7 @@ pub mod railyard {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("trace")).init();
     let matches = command!()
         .arg(arg!(-p --port <PORT> "Port used for management API").required(true))
         .arg(
@@ -26,13 +27,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .get_matches();
 
     let port = matches.get_one::<String>("port").unwrap();
-    let management_addr = SocketAddr::from_str(&format!("[::1]:{}", port))
+    let management_addr = SocketAddr::from_str(&format!("127.0.0.1:{}", port))
         .expect("Failed to construct management SocketAddr");
-    let management_service = ClusterManagementService::new().await;
-
     let peers: Vec<_> = matches.get_many::<String>("peer").unwrap().collect();
     println!("Peers {:?}", peers);
 
+    let management_service = ClusterManagementService::new(peers).await;
     Server::builder()
         .add_service(ClusterManagementServer::new(management_service))
         .serve(management_addr)
