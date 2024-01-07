@@ -31,7 +31,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let peers: Vec<_> = matches.get_many::<String>("peer").unwrap().collect();
     println!("Peers {:?}", peers);
 
-    let railyard_service = RailyardService::new(peers).await;
+    // let railyard_service = RailyardService::new(peers).await;
+    let railyard_service: RailyardService = if port == "8001" {
+        RailyardService::new_with_data(peers).await
+    } else {
+        RailyardService::new(peers).await
+    };
     Server::builder()
         .add_service(RailyardServer::new(railyard_service))
         .serve(management_addr)
