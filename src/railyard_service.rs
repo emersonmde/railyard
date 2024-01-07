@@ -278,12 +278,12 @@ impl RailyardService {
      * success.
      */
     async fn sync_follower_log(
-        id: &String,
+        id: &str,
         peer: &Peer,
         cluster_state: Arc<Mutex<ClusterState>>,
     ) -> Result<()> {
         let mut state = cluster_state.lock().await;
-        if state.log.len() < 1 {
+        if state.log.is_empty() {
             return Ok(());
         }
 
@@ -297,12 +297,12 @@ impl RailyardService {
 
         loop {
             let response = Self::send_append_entries(
-                &id,
+                id,
                 state.current_term,
                 prev_log_index,
                 prev_log_term,
                 state.commit_index,
-                &peer,
+                peer,
                 &state.log[start_index as usize..=current_log_index as usize],
             )
             .await;
@@ -337,7 +337,7 @@ impl RailyardService {
     }
 
     async fn send_append_entries(
-        id: &String,
+        id: &str,
         current_term: u64,
         prev_log_index: u64,
         prev_log_term: u64,
@@ -346,13 +346,13 @@ impl RailyardService {
         entries: &[Entry],
     ) -> Result<AppendEntriesResponse> {
         // TODO: Reuse client
-        let mut client = Self::create_client(&id, &peer.address)
+        let mut client = Self::create_client(id, &peer.address)
             .await
             .with_context(|| format!("Failed to create client for peer: {}", &peer.address))?;
 
         let request = Request::new(AppendEntriesRequest {
             term: current_term,
-            leader_id: id.clone(),
+            leader_id: id.to_string(),
             prev_log_index,
             prev_log_term,
             leader_commit: commit_index,
@@ -497,7 +497,7 @@ impl RailyardService {
         }
     }
 
-    async fn create_client(id: &String, peer: &String) -> Option<RailyardClient<Channel>> {
+    async fn create_client(id: &str, peer: &String) -> Option<RailyardClient<Channel>> {
         let client: RailyardClient<Channel>;
         let channel = Channel::builder(peer.clone().parse().unwrap())
             .connect_timeout(Self::CONNECTION_TIMEOUT)
@@ -508,7 +508,7 @@ impl RailyardService {
             Ok(ch) => client = RailyardClient::new(ch),
             Err(_) => {
                 Self::log_with_id(
-                    &id,
+                    id,
                     Level::Error,
                     &format!("Failed to connect to peer: {}", &peer),
                 );
