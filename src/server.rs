@@ -4,10 +4,9 @@ use std::str::FromStr;
 use clap::{arg, command, ArgAction};
 use tonic::transport::Server;
 
-use cluster_management_service::ClusterManagementService;
-use railyard::cluster_management_server::ClusterManagementServer;
+use crate::railyard::railyard_server::RailyardServer;
+use crate::railyard_service::RailyardService;
 
-mod cluster_management_service;
 mod railyard_service;
 
 pub mod railyard {
@@ -32,9 +31,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let peers: Vec<_> = matches.get_many::<String>("peer").unwrap().collect();
     println!("Peers {:?}", peers);
 
-    let management_service = ClusterManagementService::new(peers).await;
+    let railyard_service = RailyardService::new(peers).await;
     Server::builder()
-        .add_service(ClusterManagementServer::new(management_service))
+        .add_service(RailyardServer::new(railyard_service))
         .serve(management_addr)
         .await?;
 
