@@ -3,7 +3,6 @@ use std::str::FromStr;
 
 use clap::{arg, command, ArgAction};
 use railyard::create_railyard_server;
-use tonic::transport::Server;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
