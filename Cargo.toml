@@ -2,7 +2,7 @@
 name = "railyard"
 version = "0.1.0"
 edition = "2021"
-description = "Railyard is an implmentation of the Raft concensus algorithm using Tonic"
+description = "Railyard is an implementation of the Raft concensus algorithm using Tonic"
 license = "MIT"
 repository = "https://github.com/emersonmde/railyard"
 documentation = "https://docs.rs/railyard"
@@ -15,10 +15,6 @@ path = "src/lib.rs"
 [[bin]]
 name = "railyard"
 path = "src/main.rs"
-
-[[bin]]
-name = "client"
-path = "src/client.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

@@ -1,16 +1,16 @@
 
-[![Rust](https://github.com/emersonmde/railyard/actions/workflows/rust.yml/badge.svg)](https://github.com/emersonmde/railyard/actions/workflows/rust.yml)
+[![Rust Build](https://github.com/emersonmde/railyard/actions/workflows/rust.yml/badge.svg)](https://github.com/emersonmde/railyard/actions/workflows/rust.yml)
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## Railyard
 
-An event streaming platform (WIP)
+Railyard is an implementation of the Raft concensus algorithm using Tonic
 
 # Running
 
 To run the server locally, set the port and at least 2 other peers:
 ```bash
-cargo run -- -p 8001 --peer 127.0.0.1:8002 --peer 127.0.0.1:8003
+cargo run --bin railyard -- -p 8001 --peer 127.0.0.1:8002 --peer 127.0.0.1:8003
 ```
 
 Calling the API for testing can be done using `grpcurl`:
