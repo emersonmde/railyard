@@ -2,7 +2,7 @@ use std::net::SocketAddr;
 use std::str::FromStr;
 
 use clap::{arg, command, ArgAction};
-use railyard::create_railyard_server;
+use railyard::Railyard;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -22,7 +22,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let peers: Vec<_> = matches.get_many::<String>("peer").unwrap().collect();
     println!("Peers {:?}", peers);
 
-    let router = create_railyard_server(peers, port).await?;
+    let router = Railyard::new_server(peers).await?;
 
     router.serve(addr).await?;
 

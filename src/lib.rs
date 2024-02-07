@@ -17,7 +17,7 @@ use tonic::transport::{Channel, Server};
 use tonic::{Request, Response, Status};
 use uuid::Uuid;
 
-pub mod railyard {
+mod railyard {
     tonic::include_proto!("railyard");
 }
 
@@ -49,18 +49,26 @@ struct ClusterState {
 }
 
 #[derive(Debug)]
-pub struct RailyardService {
+pub struct Railyard {
     cluster_state: Arc<Mutex<ClusterState>>,
 }
 
-impl RailyardService {
-    pub const HEARTBEAT_TIMEOUT: Duration = Duration::from_millis(1000);
-    pub const ELECTION_TIMEOUT_BASE: u64 = 5000;
-    pub const ELECTION_TIMEOUT_JITTER: u64 = 1500;
-    pub const CONNECTION_TIMEOUT: Duration = Duration::from_secs(2);
-    pub const REQUEST_TIMEOUT: Duration = Duration::from_secs(2);
+impl Railyard {
+    const HEARTBEAT_TIMEOUT: Duration = Duration::from_millis(1000);
+    const ELECTION_TIMEOUT_BASE: u64 = 5000;
+    const ELECTION_TIMEOUT_JITTER: u64 = 1500;
+    const CONNECTION_TIMEOUT: Duration = Duration::from_secs(2);
+    const REQUEST_TIMEOUT: Duration = Duration::from_secs(2);
 
-    pub async fn new(peers: Vec<&String>) -> Self {
+    pub async fn new_server(peers: Vec<&String>) -> Result<Router, Box<dyn std::error::Error>> {
+        let service = Railyard::new(peers).await;
+
+        let server = Server::builder().add_service(RailyardServer::new(service));
+
+        Ok(server)
+    }
+
+    async fn new(peers: Vec<&String>) -> Self {
         let peers: Vec<Peer> = peers
             .iter()
             .cloned()
@@ -86,60 +94,6 @@ impl RailyardService {
                     command: Vec::from("Starting cluster".to_string()),
                 }],
                 commit_index: 0,
-            })),
-        };
-
-        let election_timeout_state = service.cluster_state.clone();
-        tokio::spawn(async move {
-            Self::election_timeout(election_timeout_state).await;
-        });
-
-        let heartbeat_state = service.cluster_state.clone();
-        tokio::spawn(async move {
-            Self::send_heartbeat(heartbeat_state).await;
-        });
-
-        service
-    }
-
-    pub async fn new_with_data(peers: Vec<&String>) -> Self {
-        let peers: Vec<Peer> = peers
-            .iter()
-            .cloned()
-            .map(|peer| Peer {
-                id: "".to_string(),
-                address: peer.clone(),
-                last_log_index: 0,
-            })
-            .collect();
-
-        let service = Self {
-            cluster_state: Arc::new(Mutex::new(ClusterState {
-                id: Uuid::new_v4().to_string(),
-                current_term: 4,
-                node_state: NodeState::Follower,
-                last_heartbeat: Instant::now(),
-                voted_for: None,
-                peers,
-                last_known_leader: None,
-                log: vec![
-                    Entry {
-                        index: 0,
-                        term: 0,
-                        command: Vec::from("Starting cluster".to_string()),
-                    },
-                    Entry {
-                        index: 1,
-                        term: 4,
-                        command: Vec::from("foo".to_string()),
-                    },
-                    Entry {
-                        index: 2,
-                        term: 4,
-                        command: Vec::from("foo".to_string()),
-                    },
-                ],
-                commit_index: 2,
             })),
         };
 
@@ -523,7 +477,7 @@ impl RailyardService {
 }
 
 #[tonic::async_trait]
-impl railyard::railyard_server::Railyard for RailyardService {
+impl railyard::railyard_server::Railyard for Railyard {
     /**
      * This is the RPC that is called by the leader to replicate log entries to other nodes.
      * The leader will send this RPC to all other nodes in the cluster.
@@ -719,19 +673,4 @@ impl railyard::railyard_server::Railyard for RailyardService {
     ) -> anyhow::Result<Response<GetIteratorIndexResponse>, Status> {
         todo!()
     }
-}
-
-pub async fn create_railyard_server(
-    peers: Vec<&String>,
-    port: &String,
-) -> Result<Router, Box<dyn std::error::Error>> {
-    let railyard_service: RailyardService = if port == "8001" {
-        RailyardService::new_with_data(peers).await
-    } else {
-        RailyardService::new(peers).await
-    };
-
-    let server = Server::builder().add_service(RailyardServer::new(railyard_service));
-
-    Ok(server)
 }
