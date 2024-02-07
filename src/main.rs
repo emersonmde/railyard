@@ -2,16 +2,8 @@ use std::net::SocketAddr;
 use std::str::FromStr;
 
 use clap::{arg, command, ArgAction};
+use railyard::create_railyard_server;
 use tonic::transport::Server;
-
-use crate::railyard::railyard_server::RailyardServer;
-use crate::railyard_service::RailyardService;
-
-mod railyard_service;
-
-pub mod railyard {
-    tonic::include_proto!("railyard");
-}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -26,21 +18,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .get_matches();
 
     let port = matches.get_one::<String>("port").unwrap();
-    let management_addr = SocketAddr::from_str(&format!("127.0.0.1:{}", port))
-        .expect("Failed to construct management SocketAddr");
+    let addr = SocketAddr::from_str(&format!("127.0.0.1:{}", port))
+        .expect("Failed to construct SocketAddr");
     let peers: Vec<_> = matches.get_many::<String>("peer").unwrap().collect();
     println!("Peers {:?}", peers);
 
-    // let railyard_service = RailyardService::new(peers).await;
-    let railyard_service: RailyardService = if port == "8001" {
-        RailyardService::new_with_data(peers).await
-    } else {
-        RailyardService::new(peers).await
-    };
-    Server::builder()
-        .add_service(RailyardServer::new(railyard_service))
-        .serve(management_addr)
-        .await?;
+    let router = create_railyard_server(peers, port).await?;
+
+    router.serve(addr).await?;
 
     Ok(())
 }
