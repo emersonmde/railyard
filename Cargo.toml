@@ -5,7 +5,7 @@ edition = "2021"
 description = "Railyard is an implementation of the Raft concensus algorithm using Tonic"
 license = "MIT"
 repository = "https://github.com/emersonmde/railyard"
-documentation = "https://docs.rs/railyard"
+documentation = "https://errorsignal.dev/railyard/railyard/index.html"
 publish = true
 
 [lib]
