@@ -1,0 +1,5 @@
+var searchIndex = JSON.parse('{\
+"railyard":{"doc":"","t":"DLLLLLLLLLLL","n":["Railyard","borrow","borrow_mut","fmt","from","into","into_request","new_server","try_from","try_into","type_id","vzip"],"q":[[0,"railyard"],[12,"core::fmt"],[13,"core::fmt"],[14,"alloc::string"],[15,"alloc::vec"],[16,"tonic::transport::server"],[17,"core::error"],[18,"alloc::boxed"],[19,"core::result"],[20,"core::any"]],"d":["","","","","Returns the argument unchanged.","Calls <code>U::from(self)</code>.","","","","","",""],"i":[0,1,1,1,1,1,1,1,1,1,1,1],"f":[0,[-1,-2,[],[]],[-1,-2,[],[]],[[1,2],3],[-1,-1,[]],[-1,-2,[],[]],[-1,[[4,[-2]]],[],[]],[[[6,[5]]],[[10,[7,[9,[8]]]]]],[-1,[[10,[-2]]],[],[]],[-1,[[10,[-2]]],[],[]],[-1,11,[]],[-1,-2,[],[]]],"c":[],"p":[[3,"Railyard",0],[3,"Formatter",12],[6,"Result",12],[3,"Request",13],[3,"String",14],[3,"Vec",15],[3,"Router",16],[8,"Error",17],[3,"Box",18],[4,"Result",19],[3,"TypeId",20]],"b":[]}\
+}');
+if (typeof window !== 'undefined' && window.initSearch) {window.initSearch(searchIndex)};
+if (typeof exports !== 'undefined') {exports.searchIndex = searchIndex};
