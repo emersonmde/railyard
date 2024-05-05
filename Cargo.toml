@@ -12,23 +12,16 @@ publish = true
 name = "railyard"
 path = "src/lib.rs"
 
-[[bin]]
-name = "railyard"
-path = "src/main.rs"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-clap = { version = "4.4.6", features = ["cargo"] }
 prost = "0.12.1"
 rustls = "0.21.7"
 tokio = { version = "1.32.0", features = ["macros", "rt-multi-thread"] }
 tonic = { version = "0.10.2", features = ["tls"] }
 rand = "0.8.5"
 uuid = { version = "1.5.0", features = ["v4"] }
-log = "0.4.14"
-env_logger = { version = "0.10.0", features = [] }
 anyhow = "1.0.75"
+tracing = "0.1.40"
+
 
 [build-dependencies]
 tonic-build = "0.10.2"

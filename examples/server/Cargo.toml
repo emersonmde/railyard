@@ -1,0 +1,16 @@
+[package]
+name = "railyard-server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+railyard = { path = "../../" }
+clap = { version = "4.4.6", features = ["cargo"] }
+tokio = { version = "1.32.0", features = ["macros", "rt-multi-thread"] }
+tonic = { version = "0.10.2", features = ["tls"] }
+tracing = { version = "0.1.40", features = ["log"] }
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+tracing-opentelemetry = "0.23.0"
+opentelemetry = "0.22.0"
+opentelemetry-otlp = "0.15.0"
+opentelemetry_sdk = { version = "0.22.1", features = ["rt-tokio"] }
