@@ -60,7 +60,7 @@ impl Railyard {
 
     pub async fn new_server(
         id: String,
-        peers: Vec<&String>,
+        peers: Vec<String>,
     ) -> Result<Router, Box<dyn std::error::Error>> {
         let service = Railyard::new(id, peers).await;
 
@@ -69,7 +69,7 @@ impl Railyard {
         Ok(server)
     }
 
-    async fn new(id: String, peers: Vec<&String>) -> Self {
+    async fn new(id: String, peers: Vec<String>) -> Self {
         let peers: Vec<Peer> = peers
             .iter()
             .cloned()
