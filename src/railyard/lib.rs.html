@@ -687,7 +687,7 @@
 
     <span class="kw">pub async fn </span>new_server(
         id: String,
-        peers: Vec&lt;<span class="kw-2">&amp;</span>String&gt;,
+        peers: Vec&lt;String&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Router, Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
         <span class="kw">let </span>service = Railyard::new(id, peers).<span class="kw">await</span>;
 
@@ -696,7 +696,7 @@
         <span class="prelude-val">Ok</span>(server)
     }
 
-    <span class="kw">async fn </span>new(id: String, peers: Vec&lt;<span class="kw-2">&amp;</span>String&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">async fn </span>new(id: String, peers: Vec&lt;String&gt;) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>peers: Vec&lt;Peer&gt; = peers
             .iter()
             .cloned()
