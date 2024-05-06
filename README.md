@@ -18,7 +18,6 @@ distributed systems that require high availability and fault tolerance.
 To incorporate Railyard into your project, add it as a dependency in your Cargo.toml:
 
 ```toml
-Copy code
 [dependencies]
 railyard = "0.1.0"
 ```
@@ -35,7 +34,8 @@ async fn main() {
 }
 ```
 
-For detailed examples and usage, see the examples directory and refer to the API documentation.
+For detailed examples and usage, see the [examples](examples) directory and refer to the
+[API documentation](https://errorsignal.dev/railyard/railyard/index.html).
 
 ## Running Examples
 
