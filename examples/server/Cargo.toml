@@ -3,6 +3,10 @@ name = "railyard-server"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "railyard-server"
+path = "src/main.rs"
+
 [dependencies]
 railyard = { path = "../../" }
 clap = { version = "4.4.6", features = ["cargo"] }

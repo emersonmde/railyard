@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  railyard1:
+    build:
+      context: .
+      target: final
+    ports:
+      - 8001:8000
+    environment:
+      - SERVER_ID=railyard1
+      - PORT=8000
+      - PEERS=http://railyard2:8000,http://railyard3:8000
+      - OTLP_ENDPOINT=http://host.docker.internal:4317
+      - RUST_LOG=${RUST_LOG:-info}
+  railyard2:
+    build:
+      context: .
+      target: final
+    ports:
+      - 8002:8000
+    environment:
+      - SERVER_ID=railyard2
+      - PORT=8000
+      - PEERS=http://railyard1:8000,http://railyard3:8000
+      - OTLP_ENDPOINT=http://host.docker.internal:4317
+      - RUST_LOG=${RUST_LOG:-info}
+  railyard3:
+    build:
+      context: .
+      target: final
+    ports:
+      - 8003:8000
+    environment:
+      - SERVER_ID=railyard3
+      - PORT=8000
+      - PEERS=http://railyard1:8000,http://railyard2:8000
+      - OTLP_ENDPOINT=http://host.docker.internal:4317
+      - RUST_LOG=${RUST_LOG:-info}

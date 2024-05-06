@@ -14,7 +14,9 @@ fn setup_tracing(id: String) {
     let otlp_exporter = opentelemetry_otlp::new_exporter()
         .tonic()
         .with_timeout(Duration::from_secs(3))
-        .with_endpoint("http://localhost:4317");
+        .with_endpoint(
+            std::env::var("OTLP_ENDPOINT").unwrap_or("http://localhost:4317".to_string()),
+        );
 
     let tracer = opentelemetry_otlp::new_pipeline()
         .tracing()
@@ -52,24 +54,38 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Uuid::new_v4().to_string()
 
     let matches = command!()
-        .arg(arg!(-p --port <PORT> "Port used for management API").required(true))
-        .arg(
-            arg!(--peer <PEER_ADDRESS> "The address of a peer node")
-                .action(ArgAction::Append)
-                .required(true),
-        )
+        .arg(arg!(-p --port <PORT> "Port used for management API"))
+        .arg(arg!(--peer <PEER_ADDRESS> "The address of a peer node").action(ArgAction::Append))
         .get_matches();
 
-    let port = matches.get_one::<String>("port").unwrap();
-    let addr = SocketAddr::from_str(&format!("127.0.0.1:{}", port))
-        .expect("Failed to construct SocketAddr");
-    let peers: Vec<_> = matches.get_many::<String>("peer").unwrap().collect();
-    println!("Peers {:?}", peers);
+    // TODO: Change Dockerfile to use arguments instead of environment variables
+    let port = if let Some(port) = matches.get_one::<String>("port") {
+        port.to_string()
+    } else {
+        std::env::var("PORT")
+            .expect("`--port <PORT>` argument or PORT environment variable must be set")
+    };
+    let addr =
+        SocketAddr::from_str(&format!("0.0.0.0:{}", port)).expect("Failed to construct SocketAddr");
+    let peers: Vec<String> = if let Some(peers_cli) = matches.get_many::<String>("peer") {
+        peers_cli.map(|s| s.to_string()).collect()
+    } else {
+        std::env::var("PEERS")
+            .expect("`--peer <PEER_ADDRESS>` argument or PEERS environment variable must be set")
+            .split(',')
+            .map(|s| s.to_string())
+            .collect()
+    };
+    let server_id = std::env::var("SERVER_ID").unwrap_or_else(|_| format!("railyard-{}", port));
+    setup_tracing(server_id.clone());
+    tracing::info!(
+        "{}: Starting server on port {} with peers {:?}",
+        server_id,
+        port,
+        peers
+    );
 
-    let id = format!("railyard-{}", port);
-    setup_tracing(id.clone());
-
-    let router = Railyard::new_server(id, peers).await?;
+    let router = Railyard::new_server(server_id, peers).await?;
 
     router.serve(addr).await?;
 
