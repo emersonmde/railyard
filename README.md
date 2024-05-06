@@ -3,27 +3,51 @@
 
 ## Railyard
 
-Railyard is an implementation of the Raft concensus algorithm using Tonic
+Railyard is an implementation of the Raft concensus algorithm using the Tonic
+gRPC framework. This project aims to provide a reusable foundation for building
+distributed systems that require high availability and fault tolerance.
 
-## Running
+> **⚠️ Warning: Experimental ⚠️**
+>
+> **Railyard** is currently in early development. It should not be used in
+> production systems as it has not been tested and may still undergo
+> significant changes and improvements.
+
+## Getting Started
+
+To incorporate Railyard into your project, add it as a dependency in your Cargo.toml:
+
+```toml
+Copy code
+[dependencies]
+railyard = "0.1.0"
+```
+
+Initialize and run a Railyard cluster by including it in your Rust application:
+
+```rust
+use railyard::Railyard;
+
+#[tokio::main]
+async fn main() {
+    let my_cluster = Railyard::new_server("node_id", vec!["peer1:port", "peer2:port"]).await;
+    my_cluster.run().await;
+}
+```
+
+For detailed examples and usage, see the examples directory and refer to the API documentation.
+
+## Running Examples
 
 ### Cargo Run
 
-To run the server locally, set the port and at least 2 other peers:
+To run the server example locally, set the port and at least 2 other peers:
 
 ```bash
 cd examples/server
-cargo run -- -p 8001 --peer 127.0.0.1:8002 --peer 127.0.0.1:8003
-```
-
-```text
-Usage: railyard --port <PORT> --peer <PEER_ADDRESS>
-
-Options:
-  -p, --port <PORT>          Port used for management API
-      --peer <PEER_ADDRESS>  The address of a peer node
-  -h, --help                 Print help
-  -V, --version              Print version
+cargo run -- -p 8001 --peer 127.0.0.1:8002 --peer 127.0.0.1:8002 --peer 127.0.0.1:8003 &
+cargo run -- -p 8002 --peer 127.0.0.1:8002 --peer 127.0.0.1:8001 --peer 127.0.0.1:8003 &
+cargo run -- -p 8003 --peer 127.0.0.1:8002 --peer 127.0.0.1:8001 --peer 127.0.0.1:8002 &
 ```
 
 To aid in spinning up a cluster, the `examples/server` directory contains a
@@ -54,8 +78,8 @@ grpcurl -plaintext -import-path ./proto -proto cluster_management.proto -d '{"en
 
 # Resources
 
-- [Raft](https://raft.github.io/raft.pdf)
-- [Tonic](https://github.com/hyperium/tonic)
+- [Raft Paper](https://raft.github.io/raft.pdf)
+- [Tonic Framework](https://github.com/hyperium/tonic)
 
 ## License
 

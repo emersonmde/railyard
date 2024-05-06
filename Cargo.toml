@@ -1,12 +1,15 @@
 [package]
 name = "railyard"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2021"
 description = "Railyard is an implementation of the Raft concensus algorithm using Tonic"
 license = "MIT"
 repository = "https://github.com/emersonmde/railyard"
 documentation = "https://errorsignal.dev/railyard/railyard/index.html"
-publish = true
+readme = "README.md"
+keywords = ["raft", "consensus", "tonic", "distributed", "systems"]
+categories = ["network-programming", "concurrency", "asynchronous", "api-bindings"]
+authors = ["Matthew Emerson <emersonmde@protonmail.com>"]
 
 [lib]
 name = "railyard"
@@ -21,7 +24,6 @@ rand = "0.8.5"
 uuid = { version = "1.5.0", features = ["v4"] }
 anyhow = "1.0.75"
 tracing = "0.1.40"
-
 
 [build-dependencies]
 tonic-build = "0.10.2"
