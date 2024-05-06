@@ -111,12 +111,12 @@ impl Railyard {
         service
     }
 
-    // Send Empty AppendEntries to all peers
-    /**
-     * This is the main loop that is responsible for sending heartbeats to other nodes.
-     * It will run in a separate thread and will be responsible for sending AppendEntries RPCs to all other nodes.
-     * It will only send heartbeats if the node is the leader.
-     */
+    /// Sends heartbeats to all peers if the node is the leader
+    ///
+    /// This function will send an AppendEntries RPC to all peers in the cluster
+    /// with an empty set of entries. If the peer responds with success, the leader
+    /// will continue to send heartbeats to the peer. If the peer responds with failure,
+    /// the leader will sync the follower's log with its own.
     #[tracing::instrument]
     async fn send_heartbeat(service: Arc<Mutex<ClusterState>>) {
         loop {
@@ -200,13 +200,11 @@ impl Railyard {
         }
     }
 
-    /**
-     * Syncs missing log entries from the leader to the follower
-     *
-     * Starts by setting the index to send to be the latest log index then loops through the log sending a slice
-     * of entries, including the previous entry to the entries already tried until the follower responds with
-     * success.
-     */
+    /// Syncs missing log entries from the leader to the follower
+    ///
+    /// Starts by setting the index to send to be the latest log index then loops through the log
+    /// sending a slice of entries, including the previous entry to the entries already tried,
+    /// until the follower responds with success.
     #[tracing::instrument]
     async fn sync_follower_log(
         id: &str,
@@ -303,12 +301,8 @@ impl Railyard {
         Ok(response.into_inner())
     }
 
-    /**
-     * This is the main loop that is responsible for triggering elections.
-     * It will run in a separate thread and will be responsible for transitioning
-     * the node to a candidate state and sending RequestVote RPCs to all other nodes.
-     * If the candidate receives a majority of votes, it will transition to leader.
-     */
+    /// Sets an election timeout and transitions to candidate state if the timeout is reached
+    /// before receiving a heartbeat from the leader.
     #[tracing::instrument]
     async fn election_timeout(cluster_state_mutex: Arc<Mutex<ClusterState>>) {
         loop {
@@ -432,19 +426,22 @@ impl Railyard {
 
 #[tonic::async_trait]
 impl railyard::railyard_server::Railyard for Railyard {
-    /**
-     * This is the RPC that is called by the leader to replicate log entries to other nodes.
-     * The leader will send this RPC to all other nodes in the cluster.
-     *   1. Reply false if term < currentTerm (§5.1)
-     *   2. Reply false if log doesn’t contain an entry at prevLogIndex
-     *   whose term matches prevLogTerm (§5.3)
-     *   3. If an existing entry conflicts with a new one (same index
-     *   but different terms), delete the existing entry and all that
-     *   follow it (§5.3)
-     *   4. Append any new entries not already in the log
-     *   5. If leaderCommit > commitIndex, set commitIndex =
-     *   min(leaderCommit, index of last new entry)
-     */
+    /// Replicates log entries from the leader to the follower
+    ///
+    /// This function will receive an AppendEntries RPC from the leader and replicate the entries
+    /// to the follower's log. If the follower's log is missing entries, the leader will sync the
+    /// follower's log with its own.
+    ///
+    /// The process for handling AppendEntries is as follows:
+    ///   1. Reply false if term < currentTerm (§5.1)
+    ///   2. Reply false if log doesn’t contain an entry at prevLogIndex
+    ///   whose term matches prevLogTerm (§5.3)
+    ///   3. If an existing entry conflicts with a new one (same index
+    ///   but different terms), delete the existing entry and all that
+    ///   follow it (§5.3)
+    ///   4. Append any new entries not already in the log
+    ///   5. If leaderCommit > commitIndex, set commitIndex =
+    ///   min(leaderCommit, index of last new entry)
     #[tracing::instrument]
     async fn append_entries(
         &self,
@@ -535,14 +532,12 @@ impl railyard::railyard_server::Railyard for Railyard {
         }))
     }
 
-    /**
-     * This is the RPC that is called by a candidate to request votes from other nodes.
-     * A candidate will send this RPC to all other nodes in the cluster.
-     * The candidate will then transition to leader if it receives votes from a majority of nodes.
-     *   1. Reply false if term < currentTerm (§5.1)
-     *   2. If votedFor is null or candidateId, and candidate’s log is at
-     *   least as up-to-date as receiver’s log, grant vote
-     */
+    /// Responds to a RequestVote from a candidate
+    ///
+    /// Nodes handle RequestVote in the following way:
+    ///   1. Reply false if term < currentTerm (§5.1)
+    ///   2. If votedFor is null or candidateId, and candidate’s log is at
+    ///   least as up-to-date as receiver’s log, grant vote
     #[tracing::instrument]
     async fn request_vote(
         &self,
