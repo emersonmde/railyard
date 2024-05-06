@@ -620,11 +620,6 @@
 <a href="#618" id="618">618</a>
 <a href="#619" id="619">619</a>
 <a href="#620" id="620">620</a>
-<a href="#621" id="621">621</a>
-<a href="#622" id="622">622</a>
-<a href="#623" id="623">623</a>
-<a href="#624" id="624">624</a>
-<a href="#625" id="625">625</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::railyard::railyard_server::RailyardServer;
 <span class="kw">use </span>anyhow::{Context, Error};
 <span class="kw">use </span>railyard::railyard_client::RailyardClient;
@@ -738,12 +733,12 @@
         service
     }
 
-    <span class="comment">// Send Empty AppendEntries to all peers
-    </span><span class="doccomment">/**
-     * This is the main loop that is responsible for sending heartbeats to other nodes.
-     * It will run in a separate thread and will be responsible for sending AppendEntries RPCs to all other nodes.
-     * It will only send heartbeats if the node is the leader.
-     */
+    <span class="doccomment">/// Sends heartbeats to all peers if the node is the leader
+    ///
+    /// This function will send an AppendEntries RPC to all peers in the cluster
+    /// with an empty set of entries. If the peer responds with success, the leader
+    /// will continue to send heartbeats to the peer. If the peer responds with failure,
+    /// the leader will sync the follower's log with its own.
     </span><span class="attr">#[tracing::instrument]
     </span><span class="kw">async fn </span>send_heartbeat(service: Arc&lt;Mutex&lt;ClusterState&gt;&gt;) {
         <span class="kw">loop </span>{
@@ -827,13 +822,11 @@
         }
     }
 
-    <span class="doccomment">/**
-     * Syncs missing log entries from the leader to the follower
-     *
-     * Starts by setting the index to send to be the latest log index then loops through the log sending a slice
-     * of entries, including the previous entry to the entries already tried until the follower responds with
-     * success.
-     */
+    <span class="doccomment">/// Syncs missing log entries from the leader to the follower
+    ///
+    /// Starts by setting the index to send to be the latest log index then loops through the log
+    /// sending a slice of entries, including the previous entry to the entries already tried,
+    /// until the follower responds with success.
     </span><span class="attr">#[tracing::instrument]
     </span><span class="kw">async fn </span>sync_follower_log(
         id: <span class="kw-2">&amp;</span>str,
@@ -930,12 +923,8 @@
         <span class="prelude-val">Ok</span>(response.into_inner())
     }
 
-    <span class="doccomment">/**
-     * This is the main loop that is responsible for triggering elections.
-     * It will run in a separate thread and will be responsible for transitioning
-     * the node to a candidate state and sending RequestVote RPCs to all other nodes.
-     * If the candidate receives a majority of votes, it will transition to leader.
-     */
+    <span class="doccomment">/// Sets an election timeout and transitions to candidate state if the timeout is reached
+    /// before receiving a heartbeat from the leader.
     </span><span class="attr">#[tracing::instrument]
     </span><span class="kw">async fn </span>election_timeout(cluster_state_mutex: Arc&lt;Mutex&lt;ClusterState&gt;&gt;) {
         <span class="kw">loop </span>{
@@ -1059,19 +1048,22 @@
 
 <span class="attr">#[tonic::async_trait]
 </span><span class="kw">impl </span>railyard::railyard_server::Railyard <span class="kw">for </span>Railyard {
-    <span class="doccomment">/**
-     * This is the RPC that is called by the leader to replicate log entries to other nodes.
-     * The leader will send this RPC to all other nodes in the cluster.
-     *   1. Reply false if term &lt; currentTerm (§5.1)
-     *   2. Reply false if log doesn’t contain an entry at prevLogIndex
-     *   whose term matches prevLogTerm (§5.3)
-     *   3. If an existing entry conflicts with a new one (same index
-     *   but different terms), delete the existing entry and all that
-     *   follow it (§5.3)
-     *   4. Append any new entries not already in the log
-     *   5. If leaderCommit &gt; commitIndex, set commitIndex =
-     *   min(leaderCommit, index of last new entry)
-     */
+    <span class="doccomment">/// Replicates log entries from the leader to the follower
+    ///
+    /// This function will receive an AppendEntries RPC from the leader and replicate the entries
+    /// to the follower's log. If the follower's log is missing entries, the leader will sync the
+    /// follower's log with its own.
+    ///
+    /// The process for handling AppendEntries is as follows:
+    ///   1. Reply false if term &lt; currentTerm (§5.1)
+    ///   2. Reply false if log doesn’t contain an entry at prevLogIndex
+    ///   whose term matches prevLogTerm (§5.3)
+    ///   3. If an existing entry conflicts with a new one (same index
+    ///   but different terms), delete the existing entry and all that
+    ///   follow it (§5.3)
+    ///   4. Append any new entries not already in the log
+    ///   5. If leaderCommit &gt; commitIndex, set commitIndex =
+    ///   min(leaderCommit, index of last new entry)
     </span><span class="attr">#[tracing::instrument]
     </span><span class="kw">async fn </span>append_entries(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -1162,14 +1154,12 @@
         }))
     }
 
-    <span class="doccomment">/**
-     * This is the RPC that is called by a candidate to request votes from other nodes.
-     * A candidate will send this RPC to all other nodes in the cluster.
-     * The candidate will then transition to leader if it receives votes from a majority of nodes.
-     *   1. Reply false if term &lt; currentTerm (§5.1)
-     *   2. If votedFor is null or candidateId, and candidate’s log is at
-     *   least as up-to-date as receiver’s log, grant vote
-     */
+    <span class="doccomment">/// Responds to a RequestVote from a candidate
+    ///
+    /// Nodes handle RequestVote in the following way:
+    ///   1. Reply false if term &lt; currentTerm (§5.1)
+    ///   2. If votedFor is null or candidateId, and candidate’s log is at
+    ///   least as up-to-date as receiver’s log, grant vote
     </span><span class="attr">#[tracing::instrument]
     </span><span class="kw">async fn </span>request_vote(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
