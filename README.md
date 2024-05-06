@@ -1,4 +1,6 @@
 [![Rust Build](https://github.com/emersonmde/railyard/actions/workflows/rust.yml/badge.svg)](https://github.com/emersonmde/railyard/actions/workflows/rust.yml)
+[![Docs](https://img.shields.io/docsrs/railyard/latest)](https://docs.rs/railyard)
+[![crates](https://img.shields.io/crates/v/railyard.svg)](https://crates.io/crates/railyard)
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## Railyard
@@ -35,7 +37,7 @@ async fn main() {
 ```
 
 For detailed examples and usage, see the [examples](examples) directory and refer to the
-[API documentation](https://errorsignal.dev/railyard/railyard/index.html).
+[API documentation](https://docs.rs/railyard).
 
 ## Running Examples
 
