@@ -21,7 +21,7 @@ To incorporate Railyard into your project, add it as a dependency in your Cargo.
 
 ```toml
 [dependencies]
-railyard = "0.1.0"
+railyard = "0.0.1"
 ```
 
 Initialize and run a Railyard cluster by including it in your Rust application:
